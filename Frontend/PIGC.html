@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pedestrian Risk Predictor with Dynamic Risk Circle</title>
+
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet_heat.min.js"></script>
+
+    <style>
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        #map { position: absolute; top:0; bottom:0; left:0; right:0; z-index:1; }
+        #control-panel {
+            position: absolute; top:20px; left:20px; z-index:1000;
+            background:white; padding:15px; border-radius:8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3); width:250px;
+        }
+        label { display:block; margin-top:10px; }
+        input { width:100%; padding:5px; }
+        button { margin-top:10px; padding:5px 10px; width:100%; }
+        #result { margin-top:10px; max-height: 400px; overflow-y: auto; }
+        #result p { margin: 3px 0; }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<div id="control-panel">
+    <h4>Pedestrian Risk Predictor</h4>
+    <label>Latitude:
+        <input type="number" id="lat" step="0.00001" value="43.67878">
+    </label>
+    <label>Longitude:
+        <input type="number" id="lon" step="0.00001" value="-79.4000">
+    </label>
+    <button onclick="predictRisk()">Predict Risk</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    // Initialize map
+    var map = L.map('map', { center: [43.7, -79.4], zoom: 12 });
+
+    // Add OpenStreetMap tiles
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Example base heatmap data (replace with your full dataset)
+    var heatData = [
+        [43.655219, -79.395866, 7145],
+        [43.678611, -79.346129, 317],
+        [43.689342, -79.299286, 164]
+    ];
+    var baseHeat = L.heatLayer(heatData, { minOpacity:0.25, radius:8, blur:12, maxZoom:18 }).addTo(map);
+
+    // Risk color mapping
+    const riskColors = { "Low":"green", "Medium":"orange", "High":"red" };
+
+    // Dynamic circle marker representing predicted risk
+    var riskCircle = L.circle([43.67878, -79.4000], {
+        radius: 50, // meters
+        color: riskColors["Low"],
+        fillColor: riskColors["Low"],
+        fillOpacity: 0.8
+    }).addTo(map);
+
+    // Update circle position and color
+    function updateRiskCircle(lat, lon, riskLevel) {
+        riskCircle.setLatLng([lat, lon]);
+        if (riskLevel in riskColors) {
+            riskCircle.setStyle({ color: riskColors[riskLevel], fillColor: riskColors[riskLevel] });
+        }
+        map.setView([lat, lon], 15); // center map
+    }
+
+    // Display JSON info in <p> tags
+    function displayJsonInParagraphs(jsonObj, containerId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = ''; // clear previous content
+
+        for (const key in jsonObj) {
+            if (jsonObj.hasOwnProperty(key)) {
+                const p = document.createElement('p');
+                let value = (typeof jsonObj[key] === 'object') ? JSON.stringify(jsonObj[key]) : jsonObj[key];
+                p.textContent = `${key}: ${value}`;
+                container.appendChild(p);
+            }
+        }
+    }
+
+    // Update map when input fields change
+    function handleInputChange() {
+        const lat = parseFloat(document.getElementById('lat').value);
+        const lon = parseFloat(document.getElementById('lon').value);
+        if (!isNaN(lat) && !isNaN(lon)) {
+            updateRiskCircle(lat, lon, "Low"); // default Low risk for manual input
+        }
+    }
+
+    document.getElementById('lat').addEventListener('input', handleInputChange);
+    document.getElementById('lon').addEventListener('input', handleInputChange);
+
+    // Predict risk via backend
+    async function predictRisk() {
+        handleInputChange(); // move circle to latest input
+        const lat = parseFloat(document.getElementById('lat').value);
+        const lon = parseFloat(document.getElementById('lon').value);
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = "Loading...";
+
+        try {
+            const response = await fetch('http://10.80.177.191:8000/PIGC', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lat, lon })
+            });
+
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            const data = await response.json();
+
+            // Update risk circle color and position
+            updateRiskCircle(lat, lon, data.risk_level);
+
+            // Display JSON info in <p> tags
+            displayJsonInParagraphs(data.nearest_hotspot_info, 'result');
+
+        } catch(error) {
+            resultDiv.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+        }
+    }
+
+    // Initialize circle
+    updateRiskCircle(43.67878, -79.4000, "Low");
+</script>
+
+</body>
+</html>

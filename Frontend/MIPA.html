@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Cluster Table</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {background-color: #fafafa;}
+        ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Top Traffic Clusters</h1>
+    <table id="clusterTable">
+        <thead>
+            <tr>
+                <th>Cluster ID</th>
+                <th>Collision Count</th>
+                <th>Neighbourhoods</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        // Function to fetch JSON and render table
+        async function loadClusterData() {
+            try {
+                const response = await fetch('http://192.168.33.1:8000/MIPA');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const jsonData = await response.json();
+
+                const tbody = document.querySelector("#clusterTable tbody");
+                tbody.innerHTML = ''; // clear existing rows
+
+                jsonData.forEach(item => {
+                    const tr = document.createElement("tr");
+
+                    // Cluster ID
+                    const tdCluster = document.createElement("td");
+                    tdCluster.textContent = item.cluster;
+                    tr.appendChild(tdCluster);
+
+                    // Collision count
+                    const tdCount = document.createElement("td");
+                    tdCount.textContent = item.collision_count;
+                    tr.appendChild(tdCount);
+
+                    // Neighbourhoods
+                    const tdNeighbourhoods = document.createElement("td");
+                    const ul = document.createElement("ul");
+                    item.neighbourhoods.forEach(n => {
+                        const li = document.createElement("li");
+                        li.textContent = n;
+                        ul.appendChild(li);
+                    });
+                    tdNeighbourhoods.appendChild(ul);
+                    tr.appendChild(tdNeighbourhoods);
+
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error fetching cluster data:', error);
+                const tbody = document.querySelector("#clusterTable tbody");
+                tbody.innerHTML = '<tr><td colspan="3">Failed to load data.</td></tr>';
+            }
+        }
+
+        // Load table on page load
+        window.onload = loadClusterData;
+    </script>
+</body>
+</html>
