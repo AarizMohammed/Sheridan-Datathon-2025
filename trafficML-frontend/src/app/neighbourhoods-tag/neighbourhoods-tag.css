@@ -1,0 +1,28 @@
+.nh-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  background: rgba(0, 102, 255, 0.10); /* light blue tint */
+  color: #0a2d65;
+
+  border: 1px solid rgba(0, 102, 255, 0.25);
+}
+
+.nh-name {
+  white-space: nowrap;
+}
+
+.nh-number {
+  background: rgb(0 122 255);
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-weight: 600;
+}

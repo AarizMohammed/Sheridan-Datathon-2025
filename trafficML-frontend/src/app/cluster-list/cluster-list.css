@@ -1,0 +1,56 @@
+.table-container {
+  width: 100%;
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.cluster-table {
+  width: 90%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid #e0e6ef;
+  border-radius: 12px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Header */
+.cluster-table thead {
+  background: #f7f9fc;
+}
+
+.cluster-table thead th {
+  font-weight: 600;
+  padding: 14px 12px;
+  font-size: 14px;
+  color: #425466;
+  border-bottom: 1px solid #e0e6ef;
+  text-transform: capitalize;
+}
+
+/* Body */
+.cluster-table tbody td {
+  padding: 14px 12px;
+  font-size: 14px;
+  vertical-align: top;
+  border-bottom: 1px solid #f0f3f7;
+}
+
+/* Last row */
+.cluster-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Row hover */
+.cluster-table tbody tr:hover {
+  background: #f5faff;
+}
+
+/* Neighborhood tag spacing */
+.cluster-table td app-neighbourhoods-tag {
+  margin-right: 6px;
+  margin-bottom: 4px;
+  display: inline-block;
+}

@@ -1,0 +1,32 @@
+@if(clusters().length === 0) {
+  <p>Loading...</p>
+} @else {
+  <div class="table-container">
+    <table class="cluster-table">
+      <thead>
+      <tr>
+        <th>Cluster</th>
+        <th>Collisions</th>
+        <th>Neighbourhoods</th>
+      </tr>
+      </thead>
+
+      <tbody>
+        @for (t of clusters(); track t.cluster) {
+          <tr>
+            <td>{{ t.cluster }}</td>
+            <td>{{ t.collision_count }}</td>
+            <td>
+              @for (n of t.neighbourhoods; track $index) {
+                <app-neighbourhoods-tag
+                  [name]="parseName(n)"
+                  [number]="parseNumber(n)">
+                </app-neighbourhoods-tag>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

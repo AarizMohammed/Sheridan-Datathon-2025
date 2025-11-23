@@ -1,0 +1,18 @@
+<nav class="navbar">
+  <a class="navbar-brand" routerLink="">TrafficML</a>
+
+  <div class="nav-links">
+    <a class="nav-link" routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+      Home
+    </a>
+
+    <a class="nav-link" routerLink="/heatmap" routerLinkActive="active">
+      Heatmap
+    </a>
+
+    <a class="nav-link" routerLink="/pedestrian" routerLinkActive="active">
+      Pedestrian
+    </a>
+  </div>
+</nav>
+<router-outlet></router-outlet>

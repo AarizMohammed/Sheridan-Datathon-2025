@@ -1,0 +1,19 @@
+<div id="map"></div>
+
+<div id="control-panel">
+  <h4>Pedestrian Risk Predictor</h4>
+
+  <label>
+    Latitude:
+    <input type="number" [(ngModel)]="lat" step="0.00001" (input)="updateRedHeat()">
+  </label>
+
+  <label>
+    Longitude:
+    <input type="number" [(ngModel)]="lon" step="0.00001" (input)="updateRedHeat()">
+  </label>
+
+  <button (click)="predictRisk()">Predict Risk</button>
+
+  <div id="result"></div>
+</div>
